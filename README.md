@@ -2,7 +2,7 @@
 
 A bug exists in PEView.exe mentioned in the book ReverseCore(http://www.reversecore.com/111) and results in memory corruption and denail of service. The memory corruption vulnerability could be used as information disclosure.
 
-PEView is a tool that helps identify the structure of PE files. And the crash happens when parsing `Time Date Stamp`in PE file structure.Its update has stopped and a `patched` version was provided in this repository.
+PEView is a tool that helps identify the structure of PE files. And the crash happens when parsing `Time Date Stamp`in PE file structure. Its update was stopped and a `patched` version was provided in this repository.
 
 
 
@@ -78,16 +78,17 @@ code:00404AB2                 call    ds:GetTimeFormatA ;
 
   `40aa4c` 40aa50
 
-   `40aa50` ...
+  `40aa50` ...
 
-  They are adjacent and the pointer point to the buffer. The buffer is used for store the date and time information so it was passed into the API GetDateFormat as lpDateStr.
+  They are adjacent and the pointer point to the buffer. The buffer is used to store the date and time information so it was passed into the API GetDateFormat as lpDateStr.
 
 - At RVA 00404A9B, the return value of GetDateFormat is not checked but directly in used. 
 
   - In coutries where English is the primary language nothing happens, because the cchDate just fix the buffer.
-  - In coutire like China, the ccDate is just off-by-one smaller than the buffer because of wide chars .The API returns 0. This zero is stored in eax, and lpTimeStr for GetTimeFormat values 0x40aa4f(0x40aa50-1 by  lea     edi, [edi+eax-1]). Thus when GetTimeFormat was called the pointer of char buffer was changed from `40aa50` to `3240aa50`. The time was 23:10:49, the `32` refers to `2` and is the LSB of this DWORD.
+  
+  - In coutries like China, the ccDate is just off-by-one smaller than the output `yyyy/MM/dd ddd ` because of wide chars. The API returns 0. This zero is stored in eax, and lpTimeStr for GetTimeFormat values 0x40aa4f(`0x40aa50-0x1` by `lea edi, [edi+eax-1]`). Thus when GetTimeFormat was called, the pointer of char buffer was changed from `40aa50` to `3240aa50`. The time was 23:10:49, the `32` refers to `2` and is the LSB of this DWORD. The `3240aa50` is an invalid pointer for most situations.
 
-- Thus if some module was loaded in VA `30000000`to `32000000`, it was possible to be a valid memory address. When display in the window, the content of the memory should be displayed thus cause a  information disclosure.
+- If some module was loaded in VA `30000000`to `32000000`, it was possible to be a valid memory address. When display in the window, the content of the memory should be displayed thus cause information disclosure.
 
 
 ## The Patch
