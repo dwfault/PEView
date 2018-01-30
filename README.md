@@ -1,6 +1,6 @@
 ## The bug
 
-A bug exists in PEView.exe mentioned in the book ReverseCore(http://www.reversecore.com/111) and results in memory corruption and denail of service. The memory corruption vulnerability could be used as information disclosure.
+A bug exists in PEView.exe mentioned in the book ReverseCore(http://www.reversecore.com/111) and results in memory corruption and denail of service.
 
 PEView is a tool that helps identify the structure of PE files. And the crash happens when parsing `Time Date Stamp`in PE file structure. Its update was stopped and a `patched` version was provided in this repository.
 
